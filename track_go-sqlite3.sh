@@ -1,7 +1,6 @@
 #!/bin/sh -e
 
-if [ $# -ne 1 ]
-then
+if [ $# -ne 1 ]; then
   echo "Usage: $0 go-sqlite3_dir" >&2
   echo "Copy tracked source files from go-sqlite3 to current directory." >&2
   exit 1
@@ -19,5 +18,15 @@ cp -r $ltd/_example .
 rm -rf upgrade
 cp -r $ltd/upgrade .
 
-echo "make sure to adjust sqlite3.go with sqlcipher pragmas!"
-echo "make sure to adjust import paths in _example directory!"
+# 定义需要替换的字符串
+OLD_PACKAGE="github.com/mattn/go-sqlite3"
+NEW_PACKAGE="github.com/thinkgos/go-sqlcipher"
+
+# 查找并替换文件中的字符串
+find "_example" -type f | while read -r file; do
+  sed -i "s|$OLD_PACKAGE|$NEW_PACKAGE|g" "$file"
+done
+sed -i "s|$OLD_PACKAGE|$NEW_PACKAGE|g" "sqlite3.go"
+sed -i "s|$OLD_PACKAGE|$NEW_PACKAGE|g" "doc.go"
+
+echo "make sure to adjust sqlite3.go with sqlcipher pragmas!!!"

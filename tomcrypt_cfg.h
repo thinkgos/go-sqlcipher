@@ -3,7 +3,7 @@
 
 /* This is the build config file.
  *
- * With this you can setup what to inlcude/exclude automatically during any build.  Just comment
+ * With this you can setup what to include/exclude automatically during any build.  Just comment
  * out the line that #define's the word for the thing you want to remove.  phew!
  */
 
@@ -79,15 +79,15 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
  * The x86 platforms allow this but some others [ARM for instance] do not.  On those platforms you **MUST**
  * use the portable [slower] macros.
  */
-/* detect x86/i386 32bit */
-#if defined(__i386__) || defined(__i386) || defined(_M_IX86)
+/* detect x86/i386/ARM 32bit */
+#if defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(_M_ARM)
    #define ENDIAN_LITTLE
    #define ENDIAN_32BITWORD
    #define LTC_FAST
 #endif
 
-/* detect amd64/x64 */
-#if defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64)
+/* detect amd64/x64/arm64 */
+#if defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64) || defined(_M_ARM64)
    #define ENDIAN_LITTLE
    #define ENDIAN_64BITWORD
    #define LTC_FAST
@@ -105,7 +105,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define ENDIAN_64BITWORD
    #if defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__)
      #define ENDIAN_BIG
-   #endif
+   #else
      #define ENDIAN_LITTLE
    #endif
 #endif
@@ -175,6 +175,11 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #define LTC_FAST
 #endif
 
+/* Detect ILP32, commonly known as x32 on Linux and also possible on AIX */
+#if defined(_ILP32) || defined(__ILP32__)
+   #define ENDIAN_64BITWORD_ILP32
+#endif
+
 /* endianness fallback */
 #if !defined(ENDIAN_BIG) && !defined(ENDIAN_LITTLE)
   #if defined(_BYTE_ORDER) && _BYTE_ORDER == _BIG_ENDIAN || \
@@ -182,14 +187,16 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
       defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ || \
       defined(__BIG_ENDIAN__) || \
       defined(__ARMEB__) || defined(__THUMBEB__) || defined(__AARCH64EB__) || \
-      defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__)
+      defined(_MIPSEB) || defined(__MIPSEB) || defined(__MIPSEB__) || \
+      defined(__m68k__)
     #define ENDIAN_BIG
   #elif defined(_BYTE_ORDER) && _BYTE_ORDER == _LITTLE_ENDIAN || \
       defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
       defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ || \
       defined(__LITTLE_ENDIAN__) || \
       defined(__ARMEL__) || defined(__THUMBEL__) || defined(__AARCH64EL__) || \
-      defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
+      defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__) || \
+      defined(_M_ARM) || defined(_M_ARM64)
     #define ENDIAN_LITTLE
   #else
     #error Cannot detect endianness
@@ -202,7 +209,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    typedef unsigned __int64 ulong64;
    typedef __int64 long64;
 #else
-   #define CONST64(n) n ## ULL
+   #define CONST64(n) n ## uLL
    typedef unsigned long long ulong64;
    typedef long long long64;
 #endif
@@ -213,7 +220,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
     defined(__s390x__) || defined(__arch64__) || defined(__aarch64__) || \
     defined(__sparcv9) || defined(__sparc_v9__) || defined(__sparc64__) || \
     defined(__ia64) || defined(__ia64__) || defined(__itanium__) || defined(_M_IA64) || \
-    defined(__LP64__) || defined(_LP64) || defined(__64BIT__)
+    defined(__LP64__) || defined(_LP64) || defined(__64BIT__) || defined(_M_ARM64)
    typedef unsigned ulong32;
    #if !defined(ENDIAN_64BITWORD) && !defined(ENDIAN_32BITWORD)
      #define ENDIAN_64BITWORD
@@ -288,6 +295,32 @@ typedef unsigned long ltc_mp_digit;
    #define LTC_HAVE_ROTATE_BUILTIN
 #endif
 
+#if defined(__GNUC__)
+   #define LTC_ALIGN(n) __attribute__((aligned(n)))
+#else
+   #define LTC_ALIGN(n)
+#endif
+
+/* Choose Windows Vista as minimum Version if we're compiling with at least VS2019
+ * This is done in order to test the bcrypt RNG and can still be overridden by the user. */
+#if defined(_MSC_VER) && _MSC_VER >= 1920
+#   ifndef _WIN32_WINNT
+#      define _WIN32_WINNT 0x0600
+#   endif
+#   ifndef WINVER
+#      define WINVER 0x0600
+#   endif
+#endif
+
+/* Define `LTC_NO_NULL_TERMINATION_CHECK` in the user code
+ * before including `tomcrypt.h` to disable this functionality.
+ */
+#if defined(__GNUC__) && __GNUC__ >= 4 && !defined(LTC_NO_NULL_TERMINATION_CHECK)
+#   define LTC_NULL_TERMINATED __attribute__((sentinel))
+#else
+#   define LTC_NULL_TERMINATED
+#endif
+
 #if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 405)
 #  define LTC_DEPRECATED(s) __attribute__((deprecated("replaced by " #s)))
 #  define PRIVATE_LTC_DEPRECATED_PRAGMA(s) _Pragma(#s)
@@ -303,3 +336,11 @@ typedef unsigned long ltc_mp_digit;
 #  define LTC_DEPRECATED(s)
 #  define LTC_DEPRECATED_PRAGMA(s)
 #endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#  define LTC_ATTRIBUTE(x) __attribute__(x)
+#else
+#  define LTC_ATTRIBUTE(x)
+#endif
+
+#endif /* TOMCRYPT_CFG_H */

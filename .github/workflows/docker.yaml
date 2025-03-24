@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
-    branches: [ master ]
+    branches: [main]
 
 jobs:
   dockerfile:
     name: Run Dockerfiles in examples
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run example - simple
         run: |

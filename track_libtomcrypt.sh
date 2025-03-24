@@ -1,7 +1,6 @@
 #!/bin/sh -e
 
-if [ $# -ne 1 ]
-then
+if [ $# -ne 1 ]; then
   echo "Usage: $0 libtomcrypt_dir" >&2
   echo "Copy tracked source files from libtomcrypt_dir to current directory." >&2
   exit 1
@@ -27,7 +26,8 @@ cp -f $ltd/src/headers/tomcrypt_prng.h .
 
 # copy C files
 cp -f $ltd/src/ciphers/aes/aes.c .
-cp -f $ltd/src/ciphers/aes/aes_tab.c aes_tab.h
+cp -f $ltd/src/ciphers/aes/aes_desc.c .
+cp -f $ltd/src/ciphers/aes/aes_tab.c .
 cp -f $ltd/src/misc/burn_stack.c .
 cp -f $ltd/src/misc/compare_testvector.c .
 cp -f $ltd/src/modes/cbc/cbc_decrypt.c .
@@ -57,4 +57,4 @@ cp -f $ltd/src/hashes/sha2/sha256.c .
 cp -f $ltd/src/hashes/sha2/sha512.c .
 cp -f $ltd/src/misc/zeromem.c .
 
-echo "make sure aes.c includes aes_tab.h instead of aes_tab.c!"
+echo "track libtomcrypt done!"
