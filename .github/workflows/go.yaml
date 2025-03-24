@@ -49,7 +49,7 @@ jobs:
         run: go-acc . -- -race -v -tags "sqlite_vacuum_full"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v5
         with:
           env_vars: OS,GO
           file: coverage.txt
@@ -106,7 +106,7 @@ jobs:
         shell: msys2 {0}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v5
         with:
           env_vars: OS,GO
           file: coverage.txt
