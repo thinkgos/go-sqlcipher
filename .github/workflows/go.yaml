@@ -34,7 +34,7 @@ jobs:
         run: |
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: "Tags: default"
         run: go-acc . -- -race -v -tags ""
@@ -85,7 +85,7 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
         shell: msys2 {0}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: "Tags: default"
         run: go build -race -v -tags ""
