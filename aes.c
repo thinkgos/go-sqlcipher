@@ -62,10 +62,8 @@ const struct ltc_cipher_descriptor rijndael_enc_desc =
 
 #endif
 
-#ifndef LTC_AES_TAB_C
 #define LTC_AES_TAB_C
 #include "aes_tab.c"
-#endif
 
 static ulong32 setup_mix(ulong32 temp)
 {
@@ -98,7 +96,7 @@ static ulong32 setup_mix2(ulong32 temp)
 int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *skey)
 {
     int i;
-    ulong32 temp, *rk, *K;
+    ulong32 temp, *rk;
 #ifndef ENCRYPT_ONLY
     ulong32 *rrk;
 #endif
@@ -114,10 +112,6 @@ int SETUP(const unsigned char *key, int keylen, int num_rounds, symmetric_key *s
     }
 
     skey->rijndael.Nr = 10 + ((keylen/8)-2)*2;
-    K = LTC_ALIGN_BUF(skey->rijndael.K, 16);
-    skey->rijndael.eK = K;
-    K += 60;
-    skey->rijndael.dK = K;
 
     /* setup the forward key */
     i                 = 0;
@@ -728,11 +722,5 @@ int ECB_KS(int *keysize)
    return CRYPT_OK;
 }
 
-#undef SETUP
-#undef ECB_ENC
-#undef ECB_DEC
-#undef ECB_DONE
-#undef ECB_TEST
-#undef ECB_KS
-
 #endif
+

@@ -34,6 +34,6 @@ Track files:
 
 ## 3. Update code from https://github.com/libtom/libtomcrypt
 
-Current HEAD: `a6b9aff7aab857fe1b491710a5c5b9e2be49cb08`(from `develop` branch, `2025-03-02`)
+Current HEAD: `b96e96cf8b22a931e8e91098ac37bc72f9e2f033`(from `develop` branch, `2023-08-23`)
 
 Use `./track_libtomcrypt.sh`
