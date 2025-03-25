@@ -17,6 +17,7 @@ rm -rf _example
 cp -r $ltd/_example .
 rm -rf upgrade
 cp -r $ltd/upgrade .
+cp -f $ltd/README.md README_GO_SQLITE3.md
 
 # 定义需要替换的字符串
 OLD_PACKAGE="github.com/mattn/go-sqlite3"
