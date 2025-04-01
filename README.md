@@ -1,6 +1,6 @@
 # go-sqlcipher
 
-[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/thinkgos/go-sqlcipher) [![Go](https://github.com/thinkgos/go-sqlcipher/actions/workflows/go.yaml/badge.svg?branch=main)](https://github.com/thinkgos/go-sqlcipher/actions/workflows/go.yaml)
+[![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/thinkgos/go-sqlcipher) [![Go](https://github.com/thinkgos/go-sqlcipher/actions/workflows/go.yaml/badge.svg?branch=main)](https://github.com/thinkgos/go-sqlcipher/actions/workflows/go.yaml)  [![codecov](https://codecov.io/gh/thinkgos/go-sqlcipher/graph/badge.svg?token=IYRfw7AA8t)](https://codecov.io/gh/thinkgos/go-sqlcipher)
 
 Self-contained Go sqlite3 driver with an AES-256 encrypted sqlite3 database
 conforming to the built-in database/sql interface. It is based on:

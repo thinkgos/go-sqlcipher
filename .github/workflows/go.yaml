@@ -23,18 +23,26 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         go: ["1.20.x", "1.24.x"]
       fail-fast: false
-    env:
-      OS: ${{ matrix.os }}
-      GO: ${{ matrix.go }}
-    steps:
-      - if: matrix.os == 'macos-latest'
-        run: brew update
 
-      - uses: msys2/setup-msys2@v2
+    steps:
+      - name: (macos)install sqlcipher
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install sqlite3 sqlcipher
+
+      - name: (ubuntu)install sqlite3 sqlcipher
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          apt update
+          apt install sqlite3 sqlcipher
+
+      - name: (windows)install sqlite3 sqlcipher
+        uses: msys2/setup-msys2@v2
         if: matrix.os == 'windows-latest'
         with:
           update: true
-          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-sqlite3
+          install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-sqlite3 mingw-w64-x86_64-sqlcipher
           msystem: MINGW64
           path-type: inherit
 
@@ -58,11 +66,21 @@ jobs:
           echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "go_cache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
 
-      - name: "Tags: default"
+      - name: Cache go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.vars.outputs.GO_CACHE }}
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ matrix.go }}-go-ci-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.go }}-go-ci-
+
+      - name: "(macos,ubuntu)Tags: default"
         if: matrix.os != 'windows-latest'
         run: go test -v -race -coverprofile=coverage -tags ""
 
-      - name: "Tags: default"
+      - name: "(windows)Tags: default"
         if: matrix.os == 'windows-latest'
         run: go test -v -race -coverprofile=coverage -tags ""
         shell: msys2 {0}
@@ -73,11 +91,11 @@ jobs:
       # - name: "Tags: full"
       #   run: go test -v -race -coverprofile=coverage -tags "sqlite_allow_uri_authority sqlite_app_armor sqlite_column_metadata sqlite_foreign_keys sqlite_fts5 sqlite_icu sqlite_introspect sqlite_json sqlite_math_functions sqlite_os_trace sqlite_preupdate_hook sqlite_secure_delete sqlite_see sqlite_stat4 sqlite_trace sqlite_unlock_notify sqlite_userauth sqlite_vacuum_incr sqlite_vtable"
 
-      - name: "Tags: vacuum"
+      - name: "(macos,ubuntu)Tags: vacuum"
         if: matrix.os != 'windows-latest'
         run: go test -v -race -coverprofile=coverage -tags "sqlite_vacuum_full"
 
-      - name: "Tags: vacuum"
+      - name: "(windows)Tags: vacuum"
         if: matrix.os == 'windows-latest'
         run: go test -v -race -coverprofile=coverage -tags "sqlite_vacuum_full"
         shell: msys2 {0}
