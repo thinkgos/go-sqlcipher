@@ -34,8 +34,8 @@ jobs:
       - name: (ubuntu)install sqlite3 sqlcipher
         if: matrix.os == 'ubuntu-latest'
         run: |
-          apt update
-          apt install sqlite3 sqlcipher
+          sudo apt-get update
+          sudo apt-get install sqlite3 sqlcipher
 
       - name: (windows)install sqlite3 sqlcipher
         uses: msys2/setup-msys2@v2
