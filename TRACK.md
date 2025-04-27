@@ -11,7 +11,7 @@ tracked for changes (maintenance details below):
 
 ## 1. Update code from https://github.com/mattn/go-sqlite3
 
-Current release: `v1.14.24`
+Current release: `v1.14.28`
 
 Use `./track_go-sqlite3.sh`
 
