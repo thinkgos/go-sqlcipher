@@ -46,7 +46,7 @@ jobs:
           msystem: MINGW64
           path-type: inherit
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go }}
 
